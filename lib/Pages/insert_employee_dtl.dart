@@ -1,8 +1,9 @@
-import 'package:employee_dtl_app/base/models/employee.dart';
+import 'package:employee_dtl_app/Pages/edit_dtl.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class EmployeeDtl extends StatefulWidget {
-  const EmployeeDtl({Key? key,});
+  const EmployeeDtl({Key? key, required String title,});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -137,11 +138,11 @@ class _EmployeeDtlState extends State<EmployeeDtl>{
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const DisplayEmployeeList(),
+                      builder: (context) => const EditEmployeeDtl(title: '',),
                     ),
                   );
                 },
-                child: Text('Display Details'),
+                child: Text('Edit Details'),
               ),
             ],
           ),

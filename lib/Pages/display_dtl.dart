@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DisplayEmployeeList extends StatelessWidget {
   final String name;
@@ -20,7 +22,7 @@ class DisplayEmployeeList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inquiry Details'),
+        title: const Text('Employee Details'),
         backgroundColor:
             const Color.fromARGB(255, 36, 160, 41), // App bar background color
         elevation: 0, // Remove app bar shadow
