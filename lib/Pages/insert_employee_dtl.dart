@@ -11,6 +11,7 @@ class EmployeeDtl extends StatefulWidget {
       : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _EmployeeDtlState createState() => _EmployeeDtlState();
 }
 
@@ -30,7 +31,7 @@ class _EmployeeDtlState extends State<EmployeeDtl> {
       final contactNumber = _contactNoController.text;
       final salary = _salaryController.text;
 
-      // Add data to Firebase Firestore collection
+      
       await FirebaseFirestore.instance.collection('employees').add({
         'name': name,
         'position': position,
@@ -39,14 +40,14 @@ class _EmployeeDtlState extends State<EmployeeDtl> {
         'salary': salary,
       });
 
-      // Clear text fields
+      
       _nameController.clear();
       _positionController.clear();
       _departmentController.clear();
       _contactNoController.clear();
       _salaryController.clear();
 
-      // Show a snackbar
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Details added successfully!'),

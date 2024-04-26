@@ -18,20 +18,19 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    // Create animation controller
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
     );
-    // Create a curved animation
+
     _animation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeIn,
     );
-    // Start the animation
+
     _animationController.forward();
 
-    // Navigate to the main screen after 3 seconds delay
     Timer(
       const Duration(seconds: 3),
       () => Navigator.pushReplacement(

@@ -7,6 +7,7 @@ class DisplayDetails extends StatefulWidget {
   const DisplayDetails({super.key});
 
   @override
+  
   // ignore: library_private_types_in_public_api
   _DisplayDetailsState createState() => _DisplayDetailsState();
 }
