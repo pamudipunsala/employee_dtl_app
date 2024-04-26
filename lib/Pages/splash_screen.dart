@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:employee_dtl_app/Pages/insert_employee_dtl.dart';
+import 'package:employee_dtl_app/Pages/display_dtl.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
     // Create animation controller
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1), 
+      duration: const Duration(seconds: 1),
     );
     // Create a curved animation
     _animation = CurvedAnimation(
@@ -34,13 +34,11 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate to the main screen after 3 seconds delay
     Timer(
-      const Duration(seconds: 3), 
+      const Duration(seconds: 3),
       () => Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => const EmployeeDtl(
-                  title: 'Employee Details App',
-                )),
+            builder: (context) => DisplayDetails()),
       ),
     );
   }

@@ -1,122 +1,82 @@
+import 'package:employee_dtl_app/Pages/edit_dtl.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DisplayEmployeeList extends StatelessWidget {
-  final String name;
-  final String position;
-  final String department;
-  final String contactNumber;
-  final double salary;
+class DisplayDetails extends StatefulWidget {
+  @override
+  _DisplayDetailsState createState() => _DisplayDetailsState();
+}
 
-  const DisplayEmployeeList({
-    super.key,
-    required this.name,
-    required this.position,
-    required this.department,
-    required this.contactNumber,
-    required this.salary,
-  });
+class _DisplayDetailsState extends State {
+  late List<Map<String, dynamic>> mergedData;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('employees').get();
+    final List<Map<String, dynamic>> employeeList = [];
+    for (var doc in querySnapshot.docs) {
+      final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      data['documentId'] = doc.id;
+      employeeList.add(data);
+    }
+    setState(() {
+      mergedData = employeeList;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Employee Details'),
-        backgroundColor:
-            const Color.fromARGB(255, 36, 160, 41), // App bar background color
-        elevation: 0, // Remove app bar shadow
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Add a back arrow icon
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        backgroundColor: Color.fromARGB(255, 36, 160, 41),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text('First Name: $name'),
-            Text('Last Name: $position'),
-            Text('department: $department'),
-            Text('Phone Number: $contactNumber'),
-            Text('salary: $salary'),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Navigate back to the previous screen
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(
-                    255, 36, 160, 41), // Set the background color
-              ),
-              child: const Text('Go Back'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DisplayInquiryList extends StatelessWidget {
-  const DisplayInquiryList({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inquiry List'),
-        backgroundColor:
-            const Color.fromARGB(255, 36, 160, 41), // App bar background color
-        elevation: 0, // Remove app bar shadow
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Add a back arrow icon
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('inquiries').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          final inquiries = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: inquiries.length,
-            itemBuilder: (context, index) {
-              final inquiry = inquiries[index];
-              final name = inquiry['First Name'];
-              final position = inquiry['Last Name'];
-              final department = inquiry['department'];
-              final contactNumber = inquiry['Phone Number'];
-              final salary = inquiry['salary'];
-
-              return ListTile(
-                subtitle: Text(department),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => DisplayEmployeeList(
-                        name: name,
-                        position: position,
-                        department: department,
-                        contactNumber: contactNumber,
-                        salary: salary,
+      body: ListView.builder(
+        itemCount: mergedData.length,
+        itemBuilder: (context, index) {
+          final Map<String, dynamic> employee = mergedData[index];
+          return ListTile(
+            title: Text(employee['name']),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Position: ${employee['position']}'),
+                Text('Department: ${employee['department']}'),
+                Text('Salary: ${employee['salary']}'),
+                const SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(
+                      MaterialPageRoute(
+                        builder: (context) => EditEmployeeDetails(
+                          documentId: employee['documentId'],
+                          name: employee['name'],
+                          position: employee['position'],
+                          department: employee['department'],
+                          contactNumber: employee['contactNumber'],
+                          salary: employee['salary'],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
+                    )
+                        .then((_) {
+                      fetchData();
+                    });
+                    ;
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 36, 160, 41),
+                  ),
+                  child: const Text('Edit'),
+                ),
+              ],
+            ),
           );
         },
       ),

@@ -1,40 +1,48 @@
-import 'package:employee_dtl_app/Pages/edit_dtl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class EmployeeDtl extends StatefulWidget {
-  const EmployeeDtl({Key? key, required String title,});
+  const EmployeeDtl({
+    Key? key,
+    required String title,
+  }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _EmployeeDtlState createState() => _EmployeeDtlState();
 }
 
-class _EmployeeDtlState extends State<EmployeeDtl>{
+class _EmployeeDtlState extends State<EmployeeDtl> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _positionController = TextEditingController();
   final _departmentController = TextEditingController();
   final _salaryController = TextEditingController();
   final _contactNoController = TextEditingController();
-  
+
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final name = _nameController.text;
       final position = _positionController.text;
       final department = _departmentController.text;
       final contactNumber = _contactNoController.text;
-      final salary = _salaryController.value;
+      final salary = _salaryController.text;
 
-      // Clear text fields and reset subject
+      // Add data to Firebase Firestore collection
+      await FirebaseFirestore.instance.collection('employees').add({
+        'name': name,
+        'position': position,
+        'department': department,
+        'contactNumber': contactNumber,
+        'salary': salary,
+      });
+
+      // Clear text fields
       _nameController.clear();
       _positionController.clear();
       _departmentController.clear();
       _contactNoController.clear();
       _salaryController.clear();
 
-      // Show a success message
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Details added successfully!'),
@@ -43,17 +51,15 @@ class _EmployeeDtlState extends State<EmployeeDtl>{
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Employee Details'),
-        backgroundColor:
-            const Color.fromARGB(255, 36, 160, 41), // App bar background color
-        elevation: 0, // Remove app bar shadow
+        backgroundColor: const Color.fromARGB(255, 36, 160, 41),
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Add a back arrow icon
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -122,27 +128,12 @@ class _EmployeeDtlState extends State<EmployeeDtl>{
                 },
               ),
               const SizedBox(height: 16.0),
-              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: _submitForm,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(
-                      255, 36, 160, 41), // Set the background color
+                  backgroundColor: const Color.fromARGB(255, 36, 160, 41),
                 ),
                 child: const Text('Submit'),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Navigate to the "Inquiry" page
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EditEmployeeDtl(title: '',),
-                    ),
-                  );
-                },
-                child: Text('Edit Details'),
               ),
             ],
           ),
