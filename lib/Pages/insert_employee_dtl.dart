@@ -2,10 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class EmployeeDtl extends StatefulWidget {
-  const EmployeeDtl({
-    Key? key,
-    required String title,
-  }) : super(key: key);
+  final VoidCallback refreshData;
+
+  const EmployeeDtl(
+      {Key? key,
+      required this.refreshData,
+      required Future<void> Function() updateCallback})
+      : super(key: key);
 
   @override
   _EmployeeDtlState createState() => _EmployeeDtlState();
@@ -19,7 +22,7 @@ class _EmployeeDtlState extends State<EmployeeDtl> {
   final _salaryController = TextEditingController();
   final _contactNoController = TextEditingController();
 
-  void _submitForm() async {
+  void _submitForm(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       final name = _nameController.text;
       final position = _positionController.text;
@@ -43,11 +46,14 @@ class _EmployeeDtlState extends State<EmployeeDtl> {
       _contactNoController.clear();
       _salaryController.clear();
 
+      // Show a snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Details added successfully!'),
         ),
       );
+
+      widget.refreshData();
     }
   }
 
@@ -129,7 +135,7 @@ class _EmployeeDtlState extends State<EmployeeDtl> {
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
-                onPressed: _submitForm,
+                onPressed: () => _submitForm(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 36, 160, 41),
                 ),

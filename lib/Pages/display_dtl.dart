@@ -1,14 +1,18 @@
 import 'package:employee_dtl_app/Pages/edit_dtl.dart';
+import 'package:employee_dtl_app/Pages/insert_employee_dtl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DisplayDetails extends StatefulWidget {
+  const DisplayDetails({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _DisplayDetailsState createState() => _DisplayDetailsState();
 }
 
 class _DisplayDetailsState extends State {
-  late List<Map<String, dynamic>> mergedData;
+  late List<Map<String, dynamic>> mergedData = [];
 
   @override
   void initState() {
@@ -23,11 +27,23 @@ class _DisplayDetailsState extends State {
     for (var doc in querySnapshot.docs) {
       final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       data['documentId'] = doc.id;
+      double grossSalary = double.parse(data['salary']);
+      double deduction = grossSalary * 0.02;
+      double netSalary = grossSalary - deduction;
+      data['netSalary'] = netSalary;
       employeeList.add(data);
     }
     setState(() {
       mergedData = employeeList;
     });
+  }
+
+  void deleteEmployee(String documentId) async {
+    await FirebaseFirestore.instance
+        .collection('employees')
+        .doc(documentId)
+        .delete();
+    fetchData();
   }
 
   @override
@@ -48,37 +64,69 @@ class _DisplayDetailsState extends State {
               children: [
                 Text('Position: ${employee['position']}'),
                 Text('Department: ${employee['department']}'),
-                Text('Salary: ${employee['salary']}'),
+                Text('Gross Salary: ${employee['salary']}'),
+                Text('Net Salary: ${employee['netSalary']}'),
                 const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .push(
-                      MaterialPageRoute(
-                        builder: (context) => EditEmployeeDetails(
-                          documentId: employee['documentId'],
-                          name: employee['name'],
-                          position: employee['position'],
-                          department: employee['department'],
-                          contactNumber: employee['contactNumber'],
-                          salary: employee['salary'],
-                        ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context)
+                            .push(
+                          MaterialPageRoute(
+                            builder: (context) => EditEmployeeDetails(
+                              documentId: employee['documentId'],
+                              name: employee['name'],
+                              position: employee['position'],
+                              department: employee['department'],
+                              contactNumber: employee['contactNumber'],
+                              salary: employee['salary'],
+                            ),
+                          ),
+                        )
+                            .then((_) {
+                          fetchData();
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 36, 160, 41),
                       ),
-                    )
-                        .then((_) {
-                      fetchData();
-                    });
-                    ;
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 36, 160, 41),
-                  ),
-                  child: const Text('Edit'),
+                      child: const Text('Edit'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        deleteEmployee(employee['documentId']);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 175, 23, 12),
+                      ),
+                      child: const Text('Delete'),
+                    ),
+                  ],
                 ),
               ],
             ),
           );
         },
+      ),
+      floatingActionButton: SizedBox(
+        width: 200,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EmployeeDtl(
+                  updateCallback: fetchData,
+                  refreshData: () {},
+                ),
+              ),
+            );
+          },
+          backgroundColor: const Color.fromARGB(255, 36, 160, 41),
+          child: const Text('Add New Employees'),
+        ),
       ),
     );
   }
